@@ -12,16 +12,17 @@ def index(request):
     return render(request, "login_app/index.html", context)
 
 def register(request):
-    results = User.objects.RegVal(request.POST)
+    results = User.objects.ValidateUserInfo(request.POST)
     if results['status'] == False:
         for msg in results['errors']:
             messages.error(request, msg)
         return redirect('/')
     User.objects.Creator(request.POST)
+    messages.info(request, "User {0} created: {1} {2} Email:{3} ".format(results['user'].id, results['user'].first_name, results['user'].last_name, results['user'].email))
     return redirect("/")
 
 def login(request):
-    results = User.objects.logVal(request.POST)
+    user = results = User.objects.logVal(request.POST)
     if results['status'] == False:
         for msg in results['errors']:
             messages.error(request, msg)
@@ -30,6 +31,9 @@ def login(request):
     request.session['user_first_name'] = results['user'].first_name
     request.session['user_last_name'] = results['user'].last_name
     request.session['user_email'] = results['user'].email
-    # not going to store hashed password...
-    print ''
+    msg = "User {0} logged in: {1} {2} Email:{3} ".format(results['user'].id, results['user'].first_name, results['user'].last_name, results['user'].email)
+    messages.info(request, msg)
     return redirect("/home")
+
+def home(request):
+    return render(request, "login_app/home.html")

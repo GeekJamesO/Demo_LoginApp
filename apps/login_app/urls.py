@@ -5,6 +5,7 @@ urlpatterns = [
     url(r'^$', views.index),
     url(r'^login$', views.login),
     url(r'^register$', views.register),
+    url(r'^home$', views.home),
     # url(r'^new$', views.new),
     # url(r'^create$', views.create),  # Post method sends here..
     # url(r'^(?P<number>\d+)$', views.show),

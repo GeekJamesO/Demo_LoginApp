@@ -5,7 +5,7 @@ import re
 import bcrypt
 
 class UserManager(models.Manager):
-    def RegVal(self, PostData):
+    def ValidateUserInfo(self, PostData):
         results = {"status": True, 'errors': [] }
         if len(PostData['first_name']) < 2:
             results['errors'].append("first name must be 3 or more characters")
@@ -15,7 +15,6 @@ class UserManager(models.Manager):
             results['errors'].append("last name must be 3 or more characters")
         if not (PostData['last_name']).isalpha():
             results['errors'].append("last name must be alphabetic characters")
-
         regexResult = re.search(r'\w+@\w+',PostData['email'])
         if not regexResult:
             results['errors'].append("Email is not valid")
@@ -36,6 +35,7 @@ class UserManager(models.Manager):
         print "Hashed Value:" , hashedPw , '%'*30
         user = User.objects.create( first_name=PostData['first_name'],  last_name= PostData['last_name'], email = PostData['email'], password = hashedPw )
         user.save()
+        return self;
     def logVal(self, PostData):
         results = {"status": False, 'errors': [], 'user' : None }
         ThisUser = self.filter(email = PostData['email'] ).first()
@@ -46,13 +46,13 @@ class UserManager(models.Manager):
             print "Web @:", PostData['email'], "  pw:", PostData['password']
             incomingpw = PostData['password']
             dbpw = ThisUser.password
-            if bcrypt.checkpw(incomingpw.encode(), dbpw.encode() ):
+            if bcrypt.checkpw(incomingpw.encode(), dbpw.decode() ):
                 print "user Is Logged In", '$'*50
                 results['status'] = True
                 results['user'] = ThisUser
             else:
                 print "password not allowd", '$'*50
-                results['status'] = false
+                results['status'] = False
         return results;
 
 
@@ -61,6 +61,6 @@ class User(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
-    # create_at = datetime()
-    # update_at = datetime()
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
     objects = UserManager()
